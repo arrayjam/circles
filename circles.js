@@ -1,10 +1,13 @@
 var tree = {
   id: "parent",
   children: [
-    { id: "one", value: 50000, },
-    { id: "two", value: 1500, },
-    { id: "three", value: 1300, },
-    { id: "four", value: 15000, },
+    { id: "one", value: 9000, },
+    { id: "two", value: 50000, },
+    { id: "two", value: 13000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
   ]
 };
 
@@ -38,8 +41,15 @@ var angleForNextCircleArrangement = function(innerCircleRadius, outerCircleRadiu
   return result;
 };
 
+var angleForNextCircleArrangement2Radius = function(innerCircleRadiusA, innerCircleRadiusB, outerCircleRadius) {
+  var result = Math.acos(((innerCircleRadiusA * innerCircleRadiusA) + (innerCircleRadiusB * innerCircleRadiusB) - (outerCircleRadius * outerCircleRadius)) / (2 * innerCircleRadiusA * innerCircleRadiusB))
+
+  console.log("outerCircleRadius: ", outerCircleRadius, "result: ", result);
+  return result;
+};
+
 var angleForCircleArrangment = function(innerCircleRadius, currentOuterWidth, previousOuterWidth, cumulativeTheta) {
-  var newTheta = angleForNextCircleArrangement(innerCircleRadius, currentOuterWidth + previousOuterWidth);
+  var newTheta = angleForNextCircleArrangement2Radius(innerCircleRadius + currentOuterWidth, innerCircleRadius + previousOuterWidth, currentOuterWidth + previousOuterWidth);
   console.log("cumulativeTheta: ", cumulativeTheta, "newTheta: ", newTheta);
   return cumulativeTheta + newTheta;
 };
@@ -69,7 +79,7 @@ var previousOuterWidth = 0;
 
 root.children.forEach(function(circle, i) {
   var r = radius(circle.value);
-  var out = innerCircleRadius;
+  var out = innerCircleRadius + r;
 
   theta = null;
   if (i === 0) {
