@@ -39,10 +39,9 @@ var angleForNextCircleArrangement = function(innerCircleRadius, outerCircleRadiu
 };
 
 var angleForCircleArrangment = function(innerCircleRadius, currentOuterWidth, previousOuterWidth, cumulativeTheta) {
-  var newTheta = angleForNextCircleArrangement(innerCircleRadius, currentOuterWidth);
-  var previousTheta = angleForNextCircleArrangement(innerCircleRadius, previousOuterWidth);
-  console.log("cumulativeTheta: ", cumulativeTheta, "previousTheta: ", previousTheta, "newTheta: ", newTheta);
-  return cumulativeTheta + previousTheta + newTheta;
+  var newTheta = angleForNextCircleArrangement(innerCircleRadius, currentOuterWidth + previousOuterWidth);
+  console.log("cumulativeTheta: ", cumulativeTheta, "newTheta: ", newTheta);
+  return cumulativeTheta + newTheta;
 };
 
 var width = 960 - margin.left - margin.right,
