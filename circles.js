@@ -8,6 +8,17 @@ var tree = {
     { id: "two", value: 1000, },
     { id: "two", value: 1000, },
     { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 1000, },
+    { id: "two", value: 9000, },
   ]
 };
 
@@ -18,20 +29,13 @@ var root = d3.hierarchy(tree)
 
 console.log(tree, root);
 
-var margin = {
-  top: 50,
-  right: 50,
-  bottom: 50,
-  left: 50,
-};
-
 function area2radius(area) {
   return Math.sqrt(area / Math.PI);
 }
 
 var radius = function(d) { return area2radius(d); };
 
-var color = d3.scaleCategory10();
+var color = d3.scaleOrdinal(d3.schemeCategory10);
 var angleForNextCircleArrangement = function(innerCircleRadius, outerCircleRadius) {
   var inner = 2 * innerCircleRadius * innerCircleRadius;
 
@@ -54,25 +58,68 @@ var angleForCircleArrangment = function(innerCircleRadius, currentOuterWidth, pr
   return cumulativeTheta + newTheta;
 };
 
-var width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var width = 960,
+    height = 960;
 
 var svg = d3.selection().append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("width", width)
+    .attr("height", height);
 
 var innerCircleRadius = null;
-svg.append("circle").datum(root)
+console.log("innerCircleRadius: ", innerCircleRadius);
+
+var zoom = d3.zoom()
+    .scaleExtent([1 / 2, 10])
+    .on("zoom", zoomed);
+
+var zoomTarget = svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .style("fill", "none")
+    .style("pointer-events", "all")
+    .on("mousemove", mousemove)
+    .call(zoom);
+
+var zoomedGroup = svg.append("g")
+    .style("pointer-events", "none");
+
+var rootCircle = zoomedGroup.append("circle").datum(root)
     .attr("cx", width / 2)
     .attr("cy", height / 2)
     .attr("r", function(d) { return innerCircleRadius = radius(d.value); });
 
-console.log("innerCircleRadius: ", innerCircleRadius);
 
-var g = svg.append("g").datum(root)
+var g = zoomedGroup.append("g").datum(root)
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var zoomEvent = null;
+
+function zoomed() {
+  zoomedGroup.attr("transform", zoomEvent = d3.event.transform);
+  var mouse = d3.mouse(zoomedGroup.node());
+  // console.log(d3.event, zoomEvent, zoomEvent.invert(mouse));
+  var pos = zoomEvent.invert(mouse);
+  var k = zoomEvent.k;
+  var r = +rootCircle.attr("r");
+  var x = +rootCircle.attr("cx");
+  var y = +rootCircle.attr("cy");
+  console.log(r, k, r/k);
+
+  if ((pos[0] > x - r) &&
+      (pos[0] < x + r) &&
+      (pos[1] > y - r) &&
+      (pos[1] < y + r) &&
+      (r / k < r)) {
+    rootCircle.style("fill", "red");
+  } else {
+    rootCircle.style("fill", "black");
+  }
+
+}
+
+function mousemove() {
+  // if (zoomEvent) console.log(d3.event, zoomEvent.invert([d3.event.x, d3.event.y]), d3.event.x, d3.event.y);
+}
 
 var previousCircleTheta = 0;
 var previousOuterWidth = 0;
@@ -114,7 +161,7 @@ root.children.forEach(function(circle, i) {
       .attr("stroke", color(i));
 });
 
-svg.append("circle").datum(root)
+zoomedGroup.append("circle").datum(root)
     .attr("stroke", "red")
     .attr("fill", "none")
     .attr("cx", width / 2)
